@@ -6,14 +6,14 @@ import (
 	"github.com/jonnay101/domain-data-parser/pkg/emaildomainstats"
 )
 
-func Benchmark_emaildomainstats_NewDomainData(b *testing.B) {
+func Benchmark_emaildomainstats_GetDomainData(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		emaildomainstats.NewDomainData("big_test_data.csv")
+		emaildomainstats.GetDomainStats("big_test_data.csv")
 	}
 }
 
 func TestGetDomainNameFrequency(t *testing.T) {
-	dd, err := emaildomainstats.NewDomainData("test_data.csv")
+	dd, err := emaildomainstats.GetDomainStats("test_data.csv")
 	if err != nil {
 		t.Error(err)
 		return

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jonnay101/domain-data-parser/pkg/emaildomainstats"
+	"github.com/jonnay101/domain-data-parser/pkg/persist"
 )
 
 func main() {
@@ -16,12 +17,22 @@ func main() {
 }
 
 func run() error {
-	domainStore, err := timerDecorator(emaildomainstats.GetDomainStats, "customer_data.csv")
+	domainStats, err := timerDecorator(emaildomainstats.GetDomainStats, "customer_data.csv")
 	if err != nil {
 		return err
 	}
 
-	domainData := domainStore.GetAllDomainNameData()
+	domainData := domainStats.GetAllDomainNameData()
+
+	// persist the data
+	db, err := persist.New("./temp")
+	if err != nil {
+		return err
+	}
+
+	if err := db.Save("customer_domain_data.csv", domainData); err != nil {
+		return err
+	}
 
 	jsonData, err := json.MarshalIndent(domainData, "", "  ")
 	if err != nil {
