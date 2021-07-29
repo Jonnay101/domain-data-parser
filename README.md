@@ -1,4 +1,4 @@
-* domain data parser
+# Domain Name Data Parser
 
 This packages purpose...
 - parses a CSV file
@@ -9,7 +9,7 @@ This packages purpose...
 - allows retreival of all data in the map
 - allows the user to find how frequently a domain name occurs in this data set
 
-** In Use
+## In Use
 
 Fetching the domain name data set for your file...
 ```golang
