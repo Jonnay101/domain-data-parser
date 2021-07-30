@@ -34,6 +34,9 @@ func (dp *dataPipeline) parseCSVData(filepath string) <-chan string {
 
 		reader := csv.NewReader(file)
 		emailIndex := getEmailIndex(*reader)
+		if emailIndex < 0 {
+			log.Fatal("email field not found")
+		}
 
 		for {
 			record, err := reader.Read()
@@ -60,22 +63,18 @@ func fileTypeIsCSV(file io.Reader) bool {
 }
 
 func getEmailIndex(cr csv.Reader) (idx int) {
+	idx = -1
 	fields, err := cr.Read()
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 
-	idx = -1
 	for i, f := range fields {
 		if f != "email" {
 			continue
 		}
 
 		idx = i
-	}
-
-	if idx < 0 {
-		log.Fatal("email field title not found")
 	}
 
 	return
