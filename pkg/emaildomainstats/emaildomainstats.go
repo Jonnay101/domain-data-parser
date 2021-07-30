@@ -1,15 +1,22 @@
 package emaildomainstats
 
-import "github.com/jonnay101/domain-data-parser/pkg/store"
+import (
+	"github.com/jonnay101/domain-data-parser/pkg/datapipeline"
+	"github.com/jonnay101/domain-data-parser/pkg/store"
+)
 
 type DomainStats interface {
-	store.DomainData
+	GetAll() map[string]int
+	GetByDomainName(domainName string) int
 }
 
-// GetDomainStats returns a DomainData store. This store maps domain names against
-// their frequency of occurence in the provided customer data CSV file
-func GetDomainStats(filepath string) (DomainStats, error) {
-	emailChan := parseCSVData(filepath)
-	domChan := parseDomainNames(emailChan)
-	return saveDomainStats(domChan)
+func CreateDomainStats(filepath string) (DomainStats, error) {
+	dataStore := store.New()
+	dataPipeline := datapipeline.New(dataStore)
+
+	if err := dataPipeline.Run(filepath); err != nil {
+		return nil, err
+	}
+
+	return dataStore, nil
 }

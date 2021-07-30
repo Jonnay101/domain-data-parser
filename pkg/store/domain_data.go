@@ -2,8 +2,8 @@ package store
 
 type DomainData interface {
 	SaveDomainName(domainName string) error
-	GetAllDomainNameData() map[string]int
-	GetDomainNameFrequency(domainName string) int
+	GetAll() map[string]int
+	GetByDomainName(domainName string) int
 }
 
 type domainData struct {

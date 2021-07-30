@@ -14,7 +14,7 @@ This packages purpose...
 Fetching the domain name data set for your file...
 ```golang
 // fetch the domain stats 
-dataStats, err := emaildomainstats.GetDomainStats("your_file.csv")
+dataStats, err := emaildomainstats.CreateDomainStats("your_file.csv")
 if err != nil {
   return err
 }
@@ -22,7 +22,7 @@ if err != nil {
 
 Fetching all the data in map form (marshal for viewing)...
 ```golang
-dataMap := dataStats.GetAllDomainNameData()
+dataMap := dataStats.GetAll()
 
 byt, err := json.MarshalIndent(dataMap, "", "  ")
 if err != nil {
@@ -35,7 +35,8 @@ fmt.Printf("%s\n", byt)
 Query the frequency of a domain name... 
 ```golang 
 domainName := "mirrorweb.com"
-freq := dataStats.GetDomainNameFrequency(domainName)
+domainCount := dataStats.GetByDomainName(domainName)
 
-fmt.Printf("The domain name %s appears %d time(s) in this data set", domainName, freq)
+
+fmt.Printf("The domain name %s appears %d time(s) in this data set", domainName, domainCount)
 ```
