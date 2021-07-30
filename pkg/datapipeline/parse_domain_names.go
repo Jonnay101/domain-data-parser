@@ -1,11 +1,12 @@
-package emaildomainstats
+package datapipeline
 
 import (
 	"net/mail"
 	"strings"
 )
 
-func parseDomainNames(emailChan <-chan string) <-chan string {
+// pipe 2
+func (dp *dataPipeline) parseDomainNames(emailChan <-chan string) <-chan string {
 	domainChan := make(chan string)
 
 	go func() {

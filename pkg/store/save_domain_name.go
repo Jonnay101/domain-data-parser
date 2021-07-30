@@ -16,23 +16,15 @@ func (s *domainData) saveDomainName(domainName string) error {
 	}
 
 	if s.domainNameExists(domainName) {
-		s.incrementDomainFrequency(domainName)
+		s.store[domainName]++
 		return nil
 	}
 
-	s.initializeDomainName(domainName)
+	s.store[domainName] = 1
 	return nil
 }
 
 func (s *domainData) domainNameExists(domainName string) bool {
 	_, ok := s.store[domainName]
 	return ok
-}
-
-func (s *domainData) incrementDomainFrequency(domainName string) {
-	s.store[domainName]++
-}
-
-func (s *domainData) initializeDomainName(domainName string) {
-	s.store[domainName] = 1
 }
