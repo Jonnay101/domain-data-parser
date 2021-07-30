@@ -14,6 +14,8 @@ func (dp *dataPipeline) parseCSVData(filepath string) <-chan string {
 	emailChan := make(chan string)
 
 	go func() {
+		defer close(emailChan)
+
 		file, err := os.Open(filepath)
 		if file != nil {
 			defer file.Close()
@@ -46,8 +48,6 @@ func (dp *dataPipeline) parseCSVData(filepath string) <-chan string {
 
 			emailChan <- email
 		}
-
-		close(emailChan)
 	}()
 
 	return emailChan
