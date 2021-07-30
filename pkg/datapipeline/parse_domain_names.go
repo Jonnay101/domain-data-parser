@@ -10,6 +10,8 @@ func (dp *dataPipeline) parseDomainNames(emailChan <-chan string) <-chan string 
 	domainChan := make(chan string)
 
 	go func() {
+		defer close(domainChan)
+
 		for email := range emailChan {
 			if !emailAddressIsValid(email) {
 				continue
@@ -17,8 +19,6 @@ func (dp *dataPipeline) parseDomainNames(emailChan <-chan string) <-chan string 
 
 			domainChan <- stripDomainName(email)
 		}
-
-		close(domainChan)
 	}()
 
 	return domainChan
