@@ -24,9 +24,9 @@ func (dp *dataPipeline) Run(filepath string) error {
 	done := make(chan struct{})
 	defer close(done)
 
-	emails := dp.parseCSVData(done, filepath)
+	emails, errChan := dp.parseCSVData(done, filepath)
 
-	return dp.saveDomainStats(
+	if err := dp.saveDomainStats(
 		dp.mergeStringChannels(
 			done,
 			dp.parseDomainNames(done, emails),
@@ -38,5 +38,17 @@ func (dp *dataPipeline) Run(filepath string) error {
 			dp.parseDomainNames(done, emails),
 			dp.parseDomainNames(done, emails),
 		),
-	)
+	); err != nil {
+		return err
+	}
+
+	select {
+	case err := <-errChan:
+		if err != nil {
+			return err
+		}
+	default:
+	}
+
+	return nil
 }

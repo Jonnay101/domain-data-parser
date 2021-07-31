@@ -2,16 +2,17 @@ package datapipeline
 
 import (
 	"encoding/csv"
+	"errors"
 	"io"
-	"log"
 	"os"
 
 	"github.com/gabriel-vasile/mimetype"
 )
 
 // pipe 1
-func (dp *dataPipeline) parseCSVData(done <-chan struct{}, filepath string) <-chan string {
+func (dp *dataPipeline) parseCSVData(done <-chan struct{}, filepath string) (<-chan string, <-chan error) {
 	emailChan := make(chan string)
+	errChan := make(chan error, 1)
 
 	go func() {
 		defer close(emailChan)
@@ -21,21 +22,25 @@ func (dp *dataPipeline) parseCSVData(done <-chan struct{}, filepath string) <-ch
 			defer file.Close()
 		}
 		if err != nil {
-			log.Fatal(err)
+			errChan <- err
+			return
 		}
 
 		if !fileTypeIsCSV(file) {
-			log.Fatal("file provided to parseCSVData must be of type text/csv")
+			errChan <- errors.New("file provided to parseCSVData must be of type text/csv")
+			return
 		}
 
 		if _, err := file.Seek(0, 0); err != nil {
-			log.Fatal(err)
+			errChan <- err
+			return
 		}
 
 		reader := csv.NewReader(file)
 		emailIndex := getEmailIndex(*reader)
 		if emailIndex < 0 {
-			log.Fatal("email field not found")
+			errChan <- errors.New("email field not found")
+			return
 		}
 
 		for {
@@ -57,7 +62,7 @@ func (dp *dataPipeline) parseCSVData(done <-chan struct{}, filepath string) <-ch
 		}
 	}()
 
-	return emailChan
+	return emailChan, errChan
 }
 
 func fileTypeIsCSV(file io.Reader) bool {
