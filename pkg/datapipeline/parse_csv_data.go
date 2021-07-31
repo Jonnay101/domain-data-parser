@@ -10,7 +10,7 @@ import (
 )
 
 // pipe 1
-func (dp *dataPipeline) parseCSVData(filepath string) <-chan string {
+func (dp *dataPipeline) parseCSVData(done <-chan struct{}, filepath string) <-chan string {
 	emailChan := make(chan string)
 
 	go func() {
@@ -49,7 +49,11 @@ func (dp *dataPipeline) parseCSVData(filepath string) <-chan string {
 
 			email := record[emailIndex]
 
-			emailChan <- email
+			select {
+			case emailChan <- email:
+			case <-done:
+				return
+			}
 		}
 	}()
 
