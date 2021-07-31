@@ -21,5 +21,18 @@ func New(store dataStore) DataPipeline {
 }
 
 func (dp *dataPipeline) Run(filepath string) error {
-	return dp.saveDomainStats(dp.parseDomainNames(dp.parseCSVData(filepath)))
+	emails := dp.parseCSVData(filepath)
+
+	return dp.saveDomainStats(
+		dp.mergeStringChannels(
+			dp.parseDomainNames(emails),
+			dp.parseDomainNames(emails),
+			dp.parseDomainNames(emails),
+			dp.parseDomainNames(emails),
+			dp.parseDomainNames(emails),
+			dp.parseDomainNames(emails),
+			dp.parseDomainNames(emails),
+			dp.parseDomainNames(emails),
+		),
+	)
 }
