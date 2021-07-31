@@ -6,7 +6,7 @@ import (
 )
 
 // pipe 2
-func (dp *dataPipeline) parseDomainNames(emailChan <-chan string) <-chan string {
+func (dp *dataPipeline) parseDomainNames(done <-chan struct{}, emailChan <-chan string) <-chan string {
 	domainChan := make(chan string)
 
 	go func() {
@@ -17,7 +17,12 @@ func (dp *dataPipeline) parseDomainNames(emailChan <-chan string) <-chan string 
 				continue
 			}
 
-			domainChan <- stripDomainName(email)
+			select {
+			case domainChan <- stripDomainName(email):
+			case <-done:
+				return
+			}
+
 		}
 	}()
 

@@ -2,7 +2,7 @@ package datapipeline
 
 import "sync"
 
-func (dp *dataPipeline) mergeStringChannels(chans ...<-chan string) <-chan string {
+func (dp *dataPipeline) mergeStringChannels(done <-chan struct{}, chans ...<-chan string) <-chan string {
 	merge := make(chan string)
 	wg := new(sync.WaitGroup)
 
@@ -10,7 +10,12 @@ func (dp *dataPipeline) mergeStringChannels(chans ...<-chan string) <-chan strin
 		defer wg.Done()
 
 		for dom := range doms {
-			merge <- dom
+			select {
+			case merge <- dom:
+			case <-done:
+				return
+			}
+
 		}
 	}
 

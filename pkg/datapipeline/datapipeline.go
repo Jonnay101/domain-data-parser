@@ -21,18 +21,22 @@ func New(store dataStore) DataPipeline {
 }
 
 func (dp *dataPipeline) Run(filepath string) error {
-	emails := dp.parseCSVData(filepath)
+	done := make(chan struct{})
+	defer close(done)
+
+	emails := dp.parseCSVData(done, filepath)
 
 	return dp.saveDomainStats(
 		dp.mergeStringChannels(
-			dp.parseDomainNames(emails),
-			dp.parseDomainNames(emails),
-			dp.parseDomainNames(emails),
-			dp.parseDomainNames(emails),
-			dp.parseDomainNames(emails),
-			dp.parseDomainNames(emails),
-			dp.parseDomainNames(emails),
-			dp.parseDomainNames(emails),
+			done,
+			dp.parseDomainNames(done, emails),
+			dp.parseDomainNames(done, emails),
+			dp.parseDomainNames(done, emails),
+			dp.parseDomainNames(done, emails),
+			dp.parseDomainNames(done, emails),
+			dp.parseDomainNames(done, emails),
+			dp.parseDomainNames(done, emails),
+			dp.parseDomainNames(done, emails),
 		),
 	)
 }
