@@ -17,7 +17,7 @@ import (
 	"strings"
 )
 
-func ParseFile(filepath string) (Store, error) {
+func GetDomainNameStats(filepath string) (Store, error) {
 	store := Store{}
 
 	file, err := os.Open(filepath)

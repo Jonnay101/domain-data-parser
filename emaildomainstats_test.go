@@ -31,10 +31,10 @@ func createCSVFile(rows ...string) (io.Reader, error) {
 	return buff, nil
 }
 
-func BenchmarkParseFile(b *testing.B) {
+func BenchmarkGetDomainNameStats(b *testing.B) {
 	// run the Fib function b.N times
 	for n := 0; n < b.N; n++ {
-		_, err := ParseFile("customer_data.csv")
+		_, err := GetDomainNameStats("customer_data.csv")
 		if err != nil {
 			b.Error(err)
 			return
@@ -42,7 +42,7 @@ func BenchmarkParseFile(b *testing.B) {
 	}
 }
 
-func TestParseFile(t *testing.T) {
+func TestGetDomainNameStats(t *testing.T) {
 	wantStore := Store{
 		stats: []DomainStat{
 			{"about.com", 1},
@@ -72,7 +72,7 @@ func TestParseFile(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseFile(tt.args.filepath)
+			got, err := GetDomainNameStats(tt.args.filepath)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ParseFile() error = %v, wantErr %v", err, tt.wantErr)
 				return
