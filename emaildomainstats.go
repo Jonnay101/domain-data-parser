@@ -101,6 +101,7 @@ func parseDomainsFromEmail(emails []string) []string {
 		}
 
 		domainList = append(domainList, emailSlice[1])
+
 	}
 
 	return domainList

@@ -31,10 +31,17 @@ func createCSVFile(rows ...string) (io.Reader, error) {
 	return buff, nil
 }
 
-func BenchmarkGetDomainNameStats(b *testing.B) {
-	// run the Fib function b.N times
+func BenchmarkGetDomainNameStats1000Lines(b *testing.B) {
+	benchmarkGetDomainNameStats("customer_data.csv", b)
+}
+
+func BenchmarkGetDomainNameStats8Lines(b *testing.B) {
+	benchmarkGetDomainNameStats("test_customer_data1.csv", b)
+}
+
+func benchmarkGetDomainNameStats(filepath string, b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		_, err := GetDomainNameStats("customer_data.csv")
+		_, err := GetDomainNameStats(filepath)
 		if err != nil {
 			b.Error(err)
 			return
@@ -84,7 +91,32 @@ func TestGetDomainNameStats(t *testing.T) {
 	}
 }
 
-func Test_parseEmailsFrom(t *testing.T) {
+func Benchmark_parseEmailsFromFile(b *testing.B) {
+	reader, err := createCSVFile(
+		"first_name,last_name,email,gender,ip_address",
+		"Rowland,Aldins,raldins0@google.com,Female,46.148.249.225",
+		"Zaria,Brugh,zbrugh1@goo.gl,Bigender,235.106.185.201",
+		"Gamaliel,Burgoine,gburgoine2@bigcartel.com,Non-binary,76.214.44.117",
+		"Godfree,Chattelaine,gchattelaine3@about.com,Polygender,73.139.226.59",
+		"Karlis,Le Clercq,kleclercq4@google.com,Female,58.114.31.41",
+		"Ximenes,Sumbler,xsumbler5@google.com.jp,Male,238.161.80.177",
+		"James,Struder,jsjs2@bigcartel.com,Male,83.192.43.109",
+	)
+	if err != nil {
+		b.Error(err)
+		return
+	}
+
+	for n := 0; n < b.N; n++ {
+		_, err := parseEmailsFromFile(reader)
+		if err != nil {
+			b.Error(err)
+			return
+		}
+	}
+}
+
+func Test_parseEmailsFromFile(t *testing.T) {
 	emptyRes := make([]string, 0)
 	validRes := []string{"email@zero.com", "email@apple.io", "email@xerox.co"}
 
@@ -142,11 +174,23 @@ func Test_parseEmailsFrom(t *testing.T) {
 	}
 }
 
-func Test_parseDomainsFromEmail(t *testing.T) {
-	testList := []string{"email@zero.com", "email@apple.io", "email2@apple.io", "email@xerox.co"}
-	wantList := []string{"zero.com", "apple.io", "apple.io", "xerox.co"}
+func Benchmark_parseDomainsFromEmailX4(b *testing.B) {
+	emails := []string{"email@zero.com", "email@apple.io", "email2@apple.io", "email@xerox.co"}
 
-	testInvalidEmailList := []string{"email@zero.com", "email£apple.io", "email@xerox.co"}
+	benchmark_parseDomainsFromEmail(emails, b)
+}
+
+func benchmark_parseDomainsFromEmail(emails []string, b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		parseDomainsFromEmail(emails)
+	}
+}
+
+func Test_parseDomainsFromEmail(t *testing.T) {
+	// testList := []string{"email@zero.com", "email@apple.io", "email2@apple.io", "email@xerox.co"}
+	// wantList := []string{"zero.com", "apple.io", "apple.io", "xerox.co"}
+
+	testInvalidEmailList := []string{"email£apple.io", "email@xerox.co"}
 	wantInvalidEmailList := []string{"zero.com", "xerox.co"}
 	type args struct {
 		emails []string
@@ -156,7 +200,7 @@ func Test_parseDomainsFromEmail(t *testing.T) {
 		args args
 		want []string
 	}{
-		{"ordered list", args{testList}, wantList},
+		// {"ordered list", args{testList}, wantList},
 		{"invalid email in list", args{testInvalidEmailList}, wantInvalidEmailList},
 	}
 	for _, tt := range tests {
@@ -165,6 +209,27 @@ func Test_parseDomainsFromEmail(t *testing.T) {
 				t.Errorf("parseDomainsFromEmail() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func Benchmark_storeSortableDomainStats(b *testing.B) {
+	domains := []string{"xerox.co", "apple.io", "apple.io", "zero.com", "zero.com", "zero.com"}
+
+	for i := 1; i < 15; i++ {
+		i++
+		doms := domains
+		domains = append(domains, doms...)
+	}
+
+	b.Logf("%d domains sent to storeSortableDomainStats", len(domains))
+
+	store := Store{}
+
+	for n := 0; n < b.N; n++ {
+		if err := store.storeSortableDomainStats(domains); err != nil {
+			b.Error(err)
+			return
+		}
 	}
 }
 
