@@ -187,11 +187,15 @@ func benchmark_parseDomainsFromEmail(emails []string, b *testing.B) {
 }
 
 func Test_parseDomainsFromEmail(t *testing.T) {
-	// testList := []string{"email@zero.com", "email@apple.io", "email2@apple.io", "email@xerox.co"}
-	// wantList := []string{"zero.com", "apple.io", "apple.io", "xerox.co"}
+	testList := []string{"email@zero.com", "email@apple.io", "email2@apple.io", "email@xerox.co"}
+	wantList := []string{"zero.com", "apple.io", "apple.io", "xerox.co"}
 
-	testInvalidEmailList := []string{"email£apple.io", "email@xerox.co"}
+	testInvalidEmailList := []string{"email@zero.com", "email£apple.io", "email@", "email@xerox.co"}
 	wantInvalidEmailList := []string{"zero.com", "xerox.co"}
+
+	emptyList := []string{}
+	wantEmptyList := []string{}
+
 	type args struct {
 		emails []string
 	}
@@ -200,8 +204,10 @@ func Test_parseDomainsFromEmail(t *testing.T) {
 		args args
 		want []string
 	}{
-		// {"ordered list", args{testList}, wantList},
+		{"single invalid email", args{[]string{"email&invalid.com"}}, []string{}},
+		{"ordered list", args{testList}, wantList},
 		{"invalid email in list", args{testInvalidEmailList}, wantInvalidEmailList},
+		{"empty list", args{emptyList}, wantEmptyList},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -92,19 +92,25 @@ func findColumnIndex(wantColumn string, row []string) int {
 }
 
 func parseDomainsFromEmail(emails []string) []string {
-	domainList := make([]string, 0)
+	domainList := make([]string, len(emails))
+	domainListIdx := -1
+	domainIdx := 1
 
 	for _, email := range emails {
 		emailSlice := strings.Split(email, "@")
-		if len(emailSlice) < 2 {
+		if len(emailSlice) < (domainIdx + 1) {
 			continue
 		}
 
-		domainList = append(domainList, emailSlice[1])
+		if emailSlice[domainIdx] == "" {
+			continue
+		}
 
+		domainListIdx++
+		domainList[domainListIdx] = emailSlice[domainIdx]
 	}
 
-	return domainList
+	return domainList[:domainListIdx+1]
 }
 
 type DomainStat struct {
